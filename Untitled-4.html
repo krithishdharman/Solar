@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Enhanced Solar Tracker</title>
+  <style>
+    :root {
+      --primary: #0077cc;
+      --background: #f5f7fa;
+      --dark: #333;
+      --light: #fff;
+      --accent: #28a745;
+      --danger: #dc3545;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background-color: var(--background);
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .login-box, .dashboard {
+      background-color: var(--light);
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-box h2, .dashboard h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .login-box button {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      padding: 0.8rem;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .login-box button:hover {
+      background-color: #005fa3;
+    }
+
+    header {
+      background-color: var(--primary);
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header img {
+      height: 40px;
+    }
+
+    .dashboard {
+      max-width: 1000px;
+      margin: 2rem auto;
+    }
+
+    .dashboard nav {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .card {
+      background-color: white;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .card:hover {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .time-logout {
+      font-size: 0.9rem;
+    }
+
+    .logo-text {
+      font-size: 1.4rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login Page -->
+  <div class="container" id="login-page">
+    <div class="login-box">
+      <h2>Solar Monitoring Login</h2>
+      <input type="text" id="username" placeholder="Username" />
+      <input type="password" id="password" placeholder="Password" />
+      <button onclick="login()">Login</button>
+    </div>
+  </div>
+
+  <!-- Dashboard Page -->
+  <div id="dashboard-page" class="hidden">
+    <header>
+      <div class="logo-text">☀️ Solar Tracker</div>
+      <div class="time-logout">
+        <span id="datetime"></span> |
+        <a href="#" onclick="logout()" style="color:white;text-decoration:underline;">Logout</a>
+      </div>
+    </header>
+
+    <div class="dashboard">
+      <h2>Welcome to the Dashboard</h2>
+      <nav>
+        <div class="card" onclick="alert('Load Weather Dashboard')">🌤️ Weather</div>
+        <div class="card" onclick="alert('Load Solar Panel Parameters')">🔋 Solar Parameters</div>
+        <div class="card" onclick="alert('Load Battery Details')">🔌 Battery</div>
+        <div class="card" onclick="alert('Load Solar Tracking Control')">🛰️ Solar Tracking</div>
+        <div class="card" onclick="alert('Load Alert System')">⚠️ Alerts</div>
+      </nav>
+    </div>
+  </div>
+
+  <script>
+    function login() {
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+
+      if (user === "admin" && pass === "1234") {
+        document.getElementById("login-page").classList.add("hidden");
+        document.getElementById("dashboard-page").classList.remove("hidden");
+        updateDateTime();
+      } else {
+        alert("Invalid credentials! Use admin / 1234");
+      }
+    }
+
+    function logout() {
+      document.getElementById("dashboard-page").classList.add("hidden");
+      document.getElementById("login-page").classList.remove("hidden");
+    }
+
+    function updateDateTime() {
+      const now = new Date();
+      const formatted = now.toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+      document.getElementById("datetime").innerText = formatted;
+      setTimeout(updateDateTime, 1000);
+    }
+  </script>
+
+</body>
+</html>
