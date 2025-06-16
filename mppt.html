@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MPPT Parameters</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #d0f0fd, #a6e1f8);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    header {
+      width: 100%;
+      max-width: 960px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      color: #0b3d91; /* deep blue */
+      margin-bottom: 8px;
+      font-size: 2.5rem;
+    }
+
+    header a {
+      display: inline-block;
+      margin-top: 10px;
+      color: #045db1;
+      text-decoration: none;
+      font-weight: 600;
+      border: 2px solid #045db1;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: background 0.3s ease;
+    }
+
+    header a:hover {
+      background: #045db1;
+      color: white;
+    }
+
+    .params-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 25px;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .param-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      padding: 25px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: transform 0.3s ease;
+      cursor: default;
+    }
+
+    .param-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    }
+
+    .param-name {
+      font-weight: 700;
+      font-size: 1.25rem;
+      margin-bottom: 15px;
+      color: #024a86;
+      text-align: center;
+    }
+
+    .param-value {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #0376d0;
+      margin-bottom: 10px;
+    }
+
+    .param-unit {
+      font-size: 1rem;
+      color: #055a8c;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 14px;
+      background: #d6e9fb;
+      border-radius: 7px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #42c57d, #2ca649);
+      width: 0;
+      border-radius: 7px;
+      transition: width 1.2s ease-out;
+
+    
+    }
+      .graph-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.graph-container {
+  width: 100%;
+  max-width: 800px;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 40px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.graph-container canvas {
+  width: 100%;
+  height: 300px;
+}
+
+
+
+
+    
+  </style>
+</head>
+<body>
+  <header>
+    <h1>MPPT Parameters</h1>
+    <a href="dashboard.html">← Back to Dashboard</a>
+  </header>
+
+  <div class="params-container">
+    <div class="param-card">
+      <div class="param-name">Voltage (V0)</div>
+      <div class="param-value" id="voltage">--</div>
+      <div class="param-unit">Volts</div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="voltage-bar"></div>
+      </div>
+    </div>
+
+    <div class="param-card">
+      <div class="param-name">Current (V1)</div>
+      <div class="param-value" id="current">--</div>
+      <div class="param-unit">Amps</div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="current-bar"></div>
+      </div>
+    </div>
+
+    <div class="param-card">
+      <div class="param-name">LDR Value (V2)</div>
+      <div class="param-value" id="ldr">--</div>
+      <div class="param-unit">Raw</div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="ldr-bar"></div>
+      </div>
+    </div>
+
+    <div class="param-card">
+      <div class="param-name">Temperature (V3)</div>
+      <div class="param-value" id="temperature">--</div>
+      <div class="param-unit">°C</div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="temperature-bar"></div>
+      </div>
+    </div>
+
+    <div class="param-card">
+      <div class="param-name">MPPT Voltage (V4)</div>
+      <div class="param-value" id="mpptVoltage">--</div>
+      <div class="param-unit">Volts</div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="mpptVoltage-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BLYNK_AUTH_TOKEN = "T7nJdhKmrKCrmGPgpXtHOVCJk2reqZ0U";
+    const BLYNK_API_BASE = "https://blynk.cloud/external/api/get";
+
+    async function fetchBlynkValue(pin) {
+      try {
+        const response = await fetch(`${BLYNK_API_BASE}?token=${BLYNK_AUTH_TOKEN}&${pin}`);
+        if (!response.ok) throw new Error("Network response was not ok");
+        return parseFloat(await response.text());
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function updateProgressBar(id, value, max) {
+      const bar = document.getElementById(id);
+      if (value === null || isNaN(value)) {
+        bar.style.width = '0%';
+      } else {
+        let percentage = (value / max) * 100;
+        if (percentage > 100) percentage = 100;
+        bar.style.width = `${percentage}%`;
+      }
+    }
+
+    async function updateParameters() {
+      // Fetch all values
+      const voltage = await fetchBlynkValue("v0");
+      const current = await fetchBlynkValue("v1");
+      const ldr = await fetchBlynkValue("v2");
+      const temperature = await fetchBlynkValue("v3");
+      const mpptVoltage = await fetchBlynkValue("v4");
+
+      // Update text content or fallback text
+      document.getElementById("voltage").textContent = voltage !== null ? voltage.toFixed(2) : "--";
+      document.getElementById("current").textContent = current !== null ? current.toFixed(2) : "--";
+      document.getElementById("ldr").textContent = ldr !== null ? ldr.toFixed(0) : "--";
+      document.getElementById("temperature").textContent = temperature !== null ? temperature.toFixed(1) : "--";
+      document.getElementById("mpptVoltage").textContent = mpptVoltage !== null ? mpptVoltage.toFixed(2) : "--";
+
+      // Update progress bars — you can adjust max values as per your sensor ranges
+      updateProgressBar("voltage-bar", voltage, 30);        // max voltage ~30V
+      updateProgressBar("current-bar", current, 20);        // max current ~20A
+      updateProgressBar("ldr-bar", ldr, 1023);              // LDR raw value max 1023
+      updateProgressBar("temperature-bar", temperature, 100); // max temp 100°C
+      updateProgressBar("mpptVoltage-bar", mpptVoltage, 30);  // max voltage ~30V
+    }
+
+    // Initial load
+    updateParameters();
+
+    // Refresh every 10 seconds
+    setInterval(updateParameters, 10000);
+  </script>
+
+
+
+ <!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<div class="graph-section">
+  <h2>Live Graphs</h2>
+
+  <div class="graph-container">
+    <canvas id="voltageChart"></canvas>
+  </div>
+  <div class="graph-container">
+    <canvas id="currentChart"></canvas>
+  </div>
+  <div class="graph-container">
+    <canvas id="temperatureChart"></canvas>
+  </div>
+  <div class="graph-container">
+    <canvas id="batteryChart"></canvas>
+  </div>
+</div>
+
+
+<script>
+  const voltageCtx = document.getElementById('voltageChart').getContext('2d');
+  const currentCtx = document.getElementById('currentChart').getContext('2d');
+  const temperatureCtx = document.getElementById('temperatureChart').getContext('2d');
+  const batteryCtx = document.getElementById('batteryChart').getContext('2d');
+
+  const createLiveChart = (ctx, label, borderColor) => {
+    return new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: label,
+          data: [],
+          borderColor: borderColor,
+          backgroundColor: borderColor + "33",
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        scales: {
+          x: { title: { display: true, text: 'Time' }},
+          y: { title: { display: true, text: label }, beginAtZero: true }
+        }
+      }
+    });
+  };
+
+  const voltageChart = createLiveChart(voltageCtx, 'Voltage (V)', '#007bff');
+  const currentChart = createLiveChart(currentCtx, 'Current (A)', '#28a745');
+  const temperatureChart = createLiveChart(temperatureCtx, 'Temperature (°C)', '#e67e22');
+  const batteryChart = createLiveChart(batteryCtx, 'Battery Voltage (V)', '#8e44ad');
+
+  function fetchAndUpdate() {
+    const token = "T7nJdhKmrKCrmGPgpXtHOVCJk2reqZ0U";  // ⛳️ Replace this with your actual token
+
+    Promise.all([
+      fetch(`https://blynk.cloud/external/api/get?token=${token}&V0`), // Voltage
+      fetch(`https://blynk.cloud/external/api/get?token=${token}&V1`), // Current
+      fetch(`https://blynk.cloud/external/api/get?token=${token}&V3`), // Temp
+      fetch(`https://blynk.cloud/external/api/get?token=${token}&V4`)  // Battery Voltage
+    ])
+    .then(responses => Promise.all(responses.map(r => r.text())))
+    .then(([voltage, current, temperature, battery]) => {
+      const now = new Date().toLocaleTimeString();
+
+      updateChart(voltageChart, now, voltage);
+      updateChart(currentChart, now, current);
+      updateChart(temperatureChart, now, temperature);
+      updateChart(batteryChart, now, battery);
+    })
+    .catch(error => console.error("Blynk Fetch Error:", error));
+  }
+
+  function updateChart(chart, label, value) {
+    chart.data.labels.push(label);
+    chart.data.datasets[0].data.push(parseFloat(value));
+    
+    if (chart.data.labels.length > 10) {
+      chart.data.labels.shift();
+      chart.data.datasets[0].data.shift();
+    }
+
+    chart.update();
+  }
+
+  // Fetch new data every 5 seconds
+  setInterval(fetchAndUpdate, 5000);
+  fetchAndUpdate(); // Initial fetch
+</script>
+
+
+
+
+</body>
+</html>

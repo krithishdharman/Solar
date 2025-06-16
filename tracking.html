@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Solar Tracking - Solar Web App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #fff7e6, #f9d976);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      color: #664e27;
+    }
+
+    header {
+      width: 100%;
+      max-width: 960px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #a3711f;
+      text-shadow: 1px 1px 3px #b58300aa;
+    }
+
+    header a {
+      display: inline-block;
+      margin-top: 10px;
+      color: #a3711f;
+      text-decoration: none;
+      font-weight: 600;
+      border: 2px solid #a3711f;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: background 0.3s ease;
+    }
+
+    header a:hover {
+      background: #a3711f;
+      color: white;
+    }
+
+    .tracking-container {
+      background: #fff8dccc;
+      border-radius: 20px;
+      box-shadow: 0 12px 30px rgba(163, 113, 31, 0.3);
+      max-width: 600px;
+      width: 100%;
+      padding: 30px 25px;
+      text-align: center;
+    }
+
+    .position-display {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #7d531e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .position-icon {
+      font-size: 2.5rem;
+      color: #f0a500;
+      transform: rotate(0deg);
+      transition: transform 0.8s ease;
+    }
+
+    .angle-display {
+      margin-top: 8px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #916b22;
+      margin-bottom: 25px;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 15px;
+    }
+
+    button {
+      background: #f0a500;
+      border: none;
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 14px 22px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 5px 12px #c48900cc;
+      transition: background 0.3s ease;
+      user-select: none;
+    }
+
+    button:hover {
+      background: #d18e00;
+      box-shadow: 0 7px 16px #b37700cc;
+    }
+
+    /* Direction icons from Unicode arrows */
+    .dir-icon {
+      font-size: 3rem;
+      color: #d97e00;
+    }
+
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Solar Panel Tracking</h1>
+  <a href="dashboard.html">← Back to Dashboard</a>
+</header>
+
+<div class="tracking-container">
+  <div class="position-display" id="position-display">
+    Position: <span id="position-text">North</span>
+    <span class="position-icon" id="position-icon">⬆️</span>
+  </div>
+  <div class="angle-display" id="angle-display">
+    Angle: <span id="angle-value">0°</span>
+  </div>
+
+  <div class="controls">
+    <button id="rotate-left">Rotate Left ⬅️</button>
+    <button id="reset-angle">Reset 🔄</button>
+    <button id="rotate-right">Rotate Right ➡️</button>
+  </div>
+</div>
+
+<script>
+  const positions = [
+    { name: "North", icon: "⬆️", degrees: 0 },
+    { name: "North-East", icon: "↗️", degrees: 45 },
+    { name: "East", icon: "➡️", degrees: 90 },
+    { name: "South-East", icon: "↘️", degrees: 135 },
+    { name: "South", icon: "⬇️", degrees: 180 },
+    { name: "South-West", icon: "↙️", degrees: 225 },
+    { name: "West", icon: "⬅️", degrees: 270 },
+    { name: "North-West", icon: "↖️", degrees: 315 },
+  ];
+
+  let currentAngle = 0;
+
+  const positionText = document.getElementById('position-text');
+  const positionIcon = document.getElementById('position-icon');
+  const angleValue = document.getElementById('angle-value');
+
+  function updatePositionAndAngle(angle) {
+    currentAngle = ((angle % 360) + 360) % 360; // normalize 0-359
+
+    // Find closest position
+    let closest = positions.reduce((prev, curr) => {
+      let prevDiff = Math.min(
+        Math.abs(prev.degrees - currentAngle),
+        360 - Math.abs(prev.degrees - currentAngle)
+      );
+      let currDiff = Math.min(
+        Math.abs(curr.degrees - currentAngle),
+        360 - Math.abs(curr.degrees - currentAngle)
+      );
+      return currDiff < prevDiff ? curr : prev;
+    });
+
+    positionText.textContent = closest.name;
+    positionIcon.textContent = closest.icon;
+
+    // Rotate icon to show precise angle difference
+    let rotateDegrees = currentAngle - closest.degrees;
+    positionIcon.style.transform = `rotate(${rotateDegrees}deg)`;
+
+    angleValue.textContent = currentAngle.toFixed(0) + '°';
+  }
+
+  // Initialize with 0
+  updatePositionAndAngle(currentAngle);
+
+  document.getElementById('rotate-left').onclick = () => {
+    updatePositionAndAngle(currentAngle - 15);
+  };
+
+  document.getElementById('rotate-right').onclick = () => {
+    updatePositionAndAngle(currentAngle + 15);
+  };
+
+  document.getElementById('reset-angle').onclick = () => {
+    updatePositionAndAngle(0);
+  };
+
+  // TODO: Integrate with backend for real hardware position and commands.
+</script>
+
+</body>
+</html>

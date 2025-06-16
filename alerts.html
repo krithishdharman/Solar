@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Alert System - Solar Web App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #fff7e6, #f9d976);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      color: #664e27;
+    }
+
+    header {
+      width: 100%;
+      max-width: 960px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #a3711f;
+      text-shadow: 1px 1px 3px #b58300aa;
+    }
+
+    header a {
+      display: inline-block;
+      margin-top: 10px;
+      color: #a3711f;
+      text-decoration: none;
+      font-weight: 600;
+      border: 2px solid #a3711f;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: background 0.3s ease;
+    }
+
+    header a:hover {
+      background: #a3711f;
+      color: white;
+    }
+
+    .alerts-container {
+      max-width: 700px;
+      width: 100%;
+      background: #fff8dccc;
+      border-radius: 20px;
+      box-shadow: 0 12px 30px rgba(163, 113, 31, 0.3);
+      padding: 30px 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      min-height: 300px;
+    }
+
+    .alert {
+      padding: 18px 24px;
+      border-radius: 15px;
+      font-weight: 700;
+      box-shadow: 0 4px 8px rgba(163, 113, 31, 0.15);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      opacity: 0;
+      animation: fadeIn 0.7s forwards;
+    }
+
+    .alert-critical {
+      background-color: #f56260;
+      color: #7a1d1b;
+      border: 2px solid #7a1d1b;
+    }
+
+    .alert-no {
+      background-color: #a3d3a2;
+      color: #2a5d27;
+      border: 2px solid #2a5d27;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1.1rem;
+      opacity: 1 !important; /* always visible */
+      animation: none;
+    }
+
+    .alert-time {
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: #422d0a;
+      margin-left: 12px;
+      white-space: nowrap;
+    }
+
+    button#clear-alerts {
+      background: #a3711f;
+      border: none;
+      padding: 12px 24px;
+      color: white;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 5px 12px #7a5614cc;
+      transition: background 0.3s ease;
+      align-self: center;
+      margin-top: 15px;
+      user-select: none;
+    }
+
+    button#clear-alerts:hover {
+      background: #7a5614;
+      box-shadow: 0 7px 16px #5c4210cc;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Alert System</h1>
+  <a href="dashboard.html">← Back to Dashboard</a>
+</header>
+
+<div class="alerts-container" id="alerts-container">
+  <!-- Alerts will appear here -->
+</div>
+
+<button id="clear-alerts">Clear Alerts</button>
+
+<script>
+  // Example simulated alerts (replace with backend data or websocket)
+  const alertData = [
+    {
+      message: "Solar panel voltage dropped to critical level!",
+      type: "critical",
+      time: "2025-05-27 14:22:30"
+    },
+    {
+      message: "Battery current is below threshold!",
+      type: "critical",
+      time: "2025-05-27 14:25:10"
+    },
+    // Uncomment to test no alert
+    // {
+    //   message: "No alerts detected. All systems normal.",
+    //   type: "no",
+    //   time: ""
+    // }
+  ];
+
+  const alertsContainer = document.getElementById('alerts-container');
+
+  function renderAlerts(alerts) {
+    alertsContainer.innerHTML = ''; // clear existing
+    if (alerts.length === 0) {
+      alertsContainer.innerHTML = `<div class="alert alert-no">No alerts detected. All systems normal.</div>`;
+      return;
+    }
+    alerts.forEach(alert => {
+      const alertDiv = document.createElement('div');
+      alertDiv.classList.add('alert');
+      alertDiv.classList.add(alert.type === 'critical' ? 'alert-critical' : 'alert-no');
+
+      if (alert.type === 'critical') {
+        alertDiv.innerHTML = `
+          <div>${alert.message}</div>
+          <div class="alert-time">${alert.time}</div>
+        `;
+      } else {
+        alertDiv.textContent = alert.message;
+      }
+      alertsContainer.appendChild(alertDiv);
+    });
+  }
+
+  renderAlerts(alertData);
+
+  document.getElementById('clear-alerts').addEventListener('click', () => {
+    alertsContainer.innerHTML = `<div class="alert alert-no">No alerts detected. All systems normal.</div>`;
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Battery Parameters - Solar Web App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #d0f0fd, #a6e1f8);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    header {
+      width: 100%;
+      max-width: 960px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      color: #0b3d91; /* deep blue */
+      margin-bottom: 8px;
+      font-size: 2.5rem;
+    }
+
+    header a {
+      display: inline-block;
+      margin-top: 10px;
+      color: #045db1;
+      text-decoration: none;
+      font-weight: 600;
+      border: 2px solid #045db1;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: background 0.3s ease;
+    }
+
+    header a:hover {
+      background: #045db1;
+      color: white;
+    }
+
+    .params-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 25px;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .param-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      padding: 25px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: transform 0.3s ease;
+      cursor: default;
+    }
+
+    .param-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    }
+
+    .param-name {
+      font-weight: 700;
+      font-size: 1.25rem;
+      margin-bottom: 15px;
+      color: #024a86;
+      text-align: center;
+    }
+
+    .param-value {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #0376d0;
+      margin-bottom: 10px;
+    }
+
+    .param-unit {
+      font-size: 1rem;
+      color: #055a8c;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 14px;
+      background: #d6e9fb;
+      border-radius: 7px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #42c57d, #2ca649);
+      width: 0;
+      border-radius: 7px;
+      transition: width 1.2s ease-out;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Battery Parameters</h1>
+  <a href="dashboard.html">← Back to Dashboard</a>
+</header>
+
+<div class="params-container">
+  <div class="param-card" id="battery-power-card">
+    <div class="param-name">Battery Power</div>
+    <div class="param-value" id="battery-power-value">0</div>
+    <div class="param-unit">Watts (W)</div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="battery-power-bar"></div>
+    </div>
+  </div>
+
+  <div class="param-card" id="battery-voltage-card">
+    <div class="param-name">Battery Voltage</div>
+    <div class="param-value" id="battery-voltage-value">0</div>
+    <div class="param-unit">Volts (V)</div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="battery-voltage-bar"></div>
+    </div>
+  </div>
+
+  <div class="param-card" id="battery-current-card">
+    <div class="param-name">Battery Current</div>
+    <div class="param-value" id="battery-current-value">0</div>
+    <div class="param-unit">Amperes (A)</div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="battery-current-bar"></div>
+    </div>
+  </div>
+
+  <div class="param-card" id="battery-temp-card">
+    <div class="param-name">Battery Temperature</div>
+    <div class="param-value" id="battery-temp-value">0</div>
+    <div class="param-unit">°C</div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="battery-temp-bar"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Simulated data (replace with real-time API data)
+  const batteryData = {
+    power: 120,         // Watts (max 300)
+    voltage: 12.5,      // Volts (max 15)
+    current: 9.2,       // Amperes (max 15)
+    temperature: 35     // Celsius (max 60)
+  };
+
+  const maxValues = {
+    power: 300,
+    voltage: 15,
+    current: 15,
+    temperature: 60
+  };
+
+  function updateBatteryValues() {
+    const keys = ['power', 'voltage', 'current', 'temperature'];
+    keys.forEach(key => {
+      const valueEl = document.getElementById(`battery-${key}-value`);
+      const barEl = document.getElementById(`battery-${key}-bar`);
+      if (valueEl && barEl) {
+        valueEl.textContent = batteryData[key];
+        let widthPercent = Math.min(100, (batteryData[key] / maxValues[key]) * 100);
+        barEl.style.width = widthPercent + '%';
+      }
+    });
+  }
+
+  window.onload = () => {
+    updateBatteryValues();
+  };
+</script>
+
+</body>
+</html>

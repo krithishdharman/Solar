@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Solar Panel Parameters - Solar Web App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #fefcea, #f1da36);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    header {
+      width: 100%;
+      max-width: 960px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      color: #d97706; /* Solar orange */
+      margin-bottom: 8px;
+      font-size: 2.5rem;
+    }
+
+    header a {
+      display: inline-block;
+      margin-top: 10px;
+      color: #b45309;
+      text-decoration: none;
+      font-weight: 600;
+      border: 2px solid #b45309;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: background 0.3s ease;
+    }
+
+    header a:hover {
+      background: #b45309;
+      color: white;
+    }
+
+    .params-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 25px;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .param-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      padding: 25px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: transform 0.3s ease;
+      cursor: default;
+    }
+
+    .param-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    }
+
+    .param-name {
+      font-weight: 700;
+      font-size: 1.25rem;
+      margin-bottom: 15px;
+      color: #92400e;
+      text-align: center;
+    }
+
+    .param-value {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #b45309;
+      margin-bottom: 10px;
+    }
+
+    .param-unit {
+      font-size: 1rem;
+      color: #7c2d12;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 14px;
+      background: #f1f1f1;
+      border-radius: 7px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #fbbf24, #f59e0b);
+      width: 0;
+      border-radius: 7px;
+      transition: width 1.2s ease-out;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Solar Panel Parameters</h1>
+  <a href="dashboard.html">← Back to Dashboard</a>
+</header>
+
+<div class="params-container">
+  <div class="param-card" id="power-card">
+    <div class="param-name">Power</div>
+    <div class="param-value" id="power-value">0</div>
+    <div class="param-unit">Watts (W)</div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="power-bar"></div>
+    </div>
+  </div>
+
+  <div class="param-card" id="voltage-card">
+    <div class="param-name">Voltage</div>
+    <div class="param-value" id="voltage-value">0</div>
+    <div class="param-unit">Volts (V)</div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="voltage-bar"></div>
+    </div>
+  </div>
+
+  <div class="param-card" id="current-card">
+    <div class="param-name">Current</div>
+    <div class="param-value" id="current-value">0</div>
+    <div class="param-unit">Amperes (A)</div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="current-bar"></div>
+    </div>
+  </div>
+
+  <div class="param-card" id="temperature-card">
+    <div class="param-name">Temperature</div>
+    <div class="param-value" id="temperature-value">0</div>
+    <div class="param-unit">°C</div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="temperature-bar"></div>
+    </div>
+  </div>
+
+  <div class="param-card" id="light-intensity-card">
+    <div class="param-name">Light Intensity</div>
+    <div class="param-value" id="light-intensity-value">0</div>
+    <div class="param-unit">Lux</div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="light-intensity-bar"></div>
+    </div>
+  </div>
+
+  <div class="param-card" id="irradiance-card">
+    <div class="param-name">Solar Irradiance</div>
+    <div class="param-value" id="irradiance-value">0</div>
+    <div class="param-unit">W/m²</div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="irradiance-bar"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Simulated data (replace with real-time data fetch)
+  const solarData = {
+    power: 150,          // Watts (max 300)
+    voltage: 24,         // Volts (max 50)
+    current: 6.3,        // Amperes (max 10)
+    temperature: 45,     // Celsius (max 80)
+    lightIntensity: 7500,// Lux (max 10000)
+    irradiance: 800      // W/m² (max 1000)
+  };
+
+  // Max values to calculate progress bar width
+  const maxValues = {
+    power: 300,
+    voltage: 50,
+    current: 10,
+    temperature: 80,
+    lightIntensity: 10000,
+    irradiance: 1000
+  };
+
+  function updateValues() {
+    for (const key in solarData) {
+      const valueEl = document.getElementById(key + '-value');
+      const barEl = document.getElementById(key + '-bar');
+      if (valueEl && barEl) {
+        valueEl.textContent = solarData[key];
+        const widthPercent = Math.min(100, (solarData[key] / maxValues[key]) * 100);
+        barEl.style.width = widthPercent + '%';
+      }
+    }
+  }
+
+  // Animate progress bars after page load
+  window.onload = () => {
+    updateValues();
+  };
+</script>
+
+</body>
+</html>
